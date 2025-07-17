@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy[asyncio] >= 2.0
+asyncpg
+pydantic >= 2.0
+pydantic - settings
+alembic
+celery
+redis
+fastapi - users[sqlalchemy2]
+httpx
+slowapi
+aiosqlite
