@@ -1,0 +1,42 @@
+from __future__ import annotations
+
+from logging.config import fileConfig
+
+from alembic import context  # type: ignore[attr-defined]
+from app.core.config import get_settings
+from app.models import base
+from sqlalchemy import engine_from_config, pool
+
+config = context.config
+fileConfig(config.config_file_name)
+settings = get_settings()
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+
+TargetMetadata = base.Base.metadata
+
+
+def run_migrations_offline() -> None:
+    context.configure(
+        url=settings.DATABASE_URL, target_metadata=TargetMetadata, literal_binds=True
+    )
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def run_migrations_online() -> None:
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=TargetMetadata)
+        with context.begin_transaction():
+            context.run_migrations()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()
